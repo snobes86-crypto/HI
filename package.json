@@ -1,0 +1,12 @@
+{
+  "name": "roblox-studio-game-builder",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node railway-server.js" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "^4.1.0"
+  }
+}
