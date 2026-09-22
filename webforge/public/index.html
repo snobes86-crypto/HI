@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090b12">
+<title>WebForge AI — Build a website from one prompt</title>
+<meta name="description" content="Describe a website. AI builds it. Preview it instantly and publish it to the web.">
+<script src="https://js.puter.com/v2/"></script>
+<style>
+:root{--bg:#080a10;--panel:#0e121d;--panel2:#121827;--line:#232c40;--text:#f7f9ff;--muted:#8e99ad;--accent:#7c5cff;--accent2:#36c9ff;--good:#3ad89c;--warn:#ffbf69;--bad:#ff647c;--shadow:0 24px 80px rgba(0,0,0,.35)}
+*{box-sizing:border-box}html{background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{margin:0;min-height:100vh;background:radial-gradient(900px 500px at 50% -120px,#39226e 0,#171328 34%,var(--bg) 70%);overflow-x:hidden}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.topbar{height:68px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(8,10,16,.82);backdrop-filter:blur(18px);position:sticky;top:0;z-index:50}.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.04em;font-size:19px}.logo{width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;box-shadow:0 0 28px rgba(124,92,255,.38)}.logo svg{width:20px}.top-actions{display:flex;gap:9px;align-items:center}.badge{display:flex;align-items:center;gap:7px;border:1px solid #2a354b;background:#101622;border-radius:999px;padding:8px 11px;color:#aab4c5;font-size:12px;font-weight:700}.pulse{width:7px;height:7px;background:var(--good);border-radius:50%;box-shadow:0 0 12px var(--good)}.btn{border:1px solid var(--line);background:#111725;color:var(--text);border-radius:11px;padding:10px 14px;font-weight:800;font-size:13px;transition:.15s}.btn:hover{background:#171f30;border-color:#39445a}.btn.primary{background:linear-gradient(135deg,var(--accent),#596fff);border-color:#8a74ff;box-shadow:0 8px 28px rgba(124,92,255,.24)}.btn.primary:hover{filter:brightness(1.07)}.btn.good{background:#103629;border-color:#286b52;color:#c4ffe8}.btn.ghost{background:transparent}.btn:disabled{opacity:.48;cursor:not-allowed}.icon-btn{width:40px;height:40px;padding:0;display:grid;place-items:center}
+.hero{max-width:1050px;margin:0 auto;padding:76px 22px 34px;text-align:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(124,92,255,.35);background:rgba(124,92,255,.11);border-radius:999px;color:#d4caff;font-size:12px;font-weight:800;margin-bottom:19px}.hero h1{font-size:clamp(42px,7vw,78px);line-height:.99;letter-spacing:-.065em;margin:0 auto 18px;max-width:900px}.grad{background:linear-gradient(90deg,#fff 8%,#c7bdff 50%,#7edfff);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:690px;margin:0 auto;color:var(--muted);font-size:17px;line-height:1.65}.composer{max-width:860px;margin:34px auto 0;text-align:left;border:1px solid #2b354a;border-radius:20px;padding:10px;background:linear-gradient(180deg,#141a29,#0e131e);box-shadow:var(--shadow);position:relative}.composer:focus-within{border-color:#6f5cd0;box-shadow:0 0 0 4px rgba(124,92,255,.09),var(--shadow)}.prompt{width:100%;height:142px;resize:none;border:0;outline:0;background:transparent;color:white;padding:16px;font-size:16px;line-height:1.55}.prompt::placeholder{color:#687387}.composer-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px}.hint{color:#748096;font-size:12px;display:flex;align-items:center;gap:7px}.build-btn{border:0;border-radius:12px;padding:12px 18px;background:linear-gradient(135deg,var(--accent),#4e84ff);color:#fff;font-weight:900;display:flex;align-items:center;gap:9px;box-shadow:0 8px 30px rgba(98,94,255,.28)}.build-btn:disabled{opacity:.5}.chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px auto 0}.chip{border:1px solid #252e40;background:#0e131d;color:#9aa5b8;border-radius:999px;padding:8px 11px;font-size:12px}.chip:hover{color:white;border-color:#48546d}.trust{display:flex;justify-content:center;gap:23px;flex-wrap:wrap;color:#6f7a8d;font-size:12px;margin-top:20px}.trust span{display:flex;align-items:center;gap:6px}
+.work{max-width:1440px;margin:0 auto;padding:18px 18px 60px}.workspace{border:1px solid #222b3d;background:#0a0e17;border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}.workbar{min-height:58px;border-bottom:1px solid #20283a;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:#0d121c}.project-name{display:flex;align-items:center;gap:9px;min-width:0}.project-name input{background:transparent;border:0;color:white;font-weight:850;font-size:14px;outline:0;min-width:100px;width:220px}.status{display:flex;align-items:center;gap:7px;color:#8f9aae;font-size:12px}.status-dot{width:7px;height:7px;border-radius:50%;background:var(--good)}.work-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.work-body{display:grid;grid-template-columns:340px 1fr;min-height:680px}.sidebar{border-right:1px solid #20283a;background:#0d111a;display:flex;flex-direction:column;min-width:0}.side-tabs{display:flex;border-bottom:1px solid #20283a;padding:8px;gap:5px}.side-tab{flex:1;border:0;background:transparent;color:#778398;padding:9px;border-radius:8px;font-weight:800;font-size:12px}.side-tab.active{background:#171e2d;color:#fff}.conversation{flex:1;padding:13px;overflow:auto;max-height:550px}.msg{border:1px solid #20293b;border-radius:12px;padding:11px 12px;margin-bottom:10px;color:#aeb7c7;font-size:12.5px;line-height:1.55;background:#111723}.msg.user{background:#17152a;border-color:#372f62;color:#d9d2ff}.msg strong{color:white}.change-box{border-top:1px solid #20283a;padding:12px}.change-box textarea{width:100%;height:92px;border:1px solid #273147;background:#0b1019;border-radius:11px;resize:none;outline:0;color:white;padding:11px;line-height:1.4;font-size:13px}.change-box textarea:focus{border-color:#6655c7}.change-row{display:flex;justify-content:flex-end;margin-top:8px}
+.preview-pane{background:#080b12;min-width:0;display:flex;flex-direction:column}.preview-toolbar{height:50px;border-bottom:1px solid #20283a;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#0d121c;gap:10px}.devices{display:flex;gap:4px;background:#090d15;border:1px solid #20283a;padding:3px;border-radius:9px}.device{border:0;background:transparent;color:#67748a;padding:7px 9px;border-radius:6px;font-size:11px;font-weight:800}.device.active{background:#1a2232;color:white}.preview-label{color:#727e92;font-size:11px}.stage{flex:1;min-height:628px;display:flex;align-items:flex-start;justify-content:center;padding:18px;background-color:#141922;background-image:linear-gradient(45deg,#171d28 25%,transparent 25%),linear-gradient(-45deg,#171d28 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#171d28 75%),linear-gradient(-45deg,transparent 75%,#171d28 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0}.frame-shell{width:100%;height:592px;background:white;border-radius:11px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35);transition:width .2s}.frame-shell.tablet{width:768px;max-width:100%}.frame-shell.mobile{width:390px;max-width:100%}.frame-shell iframe{width:100%;height:100%;border:0;background:white}
+.projects-wrap{max-width:1120px;margin:0 auto;padding:26px 22px 90px}.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:14px}.section-head h2{margin:0;font-size:21px;letter-spacing:-.03em}.section-head p{margin:5px 0 0;color:var(--muted);font-size:13px}.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.project{border:1px solid #20293a;background:#0d111b;border-radius:14px;overflow:hidden;transition:.16s}.project:hover{transform:translateY(-2px);border-color:#39445b}.thumb{height:120px;background:radial-gradient(circle at 50% 50%,#422d7a,#111522 58%,#0c1018);display:grid;place-items:center;color:#b8aaff;font-size:30px}.project-body{padding:13px}.project-title{font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.project-desc{color:#727d90;font-size:12px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.project-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.small{font-size:11px;color:#657084}.linkbtn{border:0;background:transparent;color:#9c8dff;font-weight:800;font-size:12px}.empty{grid-column:1/-1;border:1px dashed #2a3347;border-radius:14px;padding:34px;text-align:center;color:#758196}
+.overlay{position:fixed;inset:0;background:rgba(1,3,8,.72);backdrop-filter:blur(9px);z-index:100;display:grid;place-items:center;padding:18px}.modal{width:min(520px,100%);border:1px solid #2b354a;background:#101622;border-radius:18px;box-shadow:0 35px 100px #000;padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal h3{margin:0;font-size:20px}.close{border:0;background:#1a2230;color:#9aa5b7;width:34px;height:34px;border-radius:9px}.field-label{font-weight:800;font-size:12px;margin:20px 0 7px;color:#cbd2de}.domain-row{display:flex;border:1px solid #2c364b;border-radius:11px;overflow:hidden;background:#0b1019}.domain-row input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:white;padding:12px}.suffix{display:flex;align-items:center;padding:0 12px;background:#151b28;color:#8994a7;font-size:13px}.url-preview{margin:10px 0 0;font-size:12px;color:#777f90;word-break:break-all}.notice{margin-top:15px;border:1px solid #33304c;background:#19172a;border-radius:11px;padding:11px;color:#b8b0d0;font-size:12px;line-height:1.5}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.published{margin-top:14px;border:1px solid #245841;background:#0f2b21;border-radius:11px;padding:12px;color:#bfffe4;font-size:13px}.published a{color:#80f2bc;font-weight:800}
+.loading{position:fixed;inset:0;z-index:120;background:rgba(5,7,12,.82);backdrop-filter:blur(12px);display:grid;place-items:center;padding:20px}.loading-card{width:min(440px,100%);text-align:center;border:1px solid #2c3548;background:#101622;border-radius:18px;padding:30px;box-shadow:var(--shadow)}.spinner{width:42px;height:42px;border-radius:50%;border:3px solid #283147;border-top-color:#8b78ff;margin:0 auto 18px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.loading h3{margin:0 0 7px}.loading p{color:#8490a3;margin:0;font-size:13px;line-height:1.55}.progress{height:4px;background:#20283a;border-radius:99px;margin:20px 0 0;overflow:hidden}.progress i{display:block;height:100%;width:45%;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:move 1.4s infinite ease-in-out}@keyframes move{0%{transform:translateX(-110%)}100%{transform:translateX(250%)}}
+.toast{position:fixed;right:18px;bottom:18px;z-index:200;background:#161d2b;border:1px solid #323d53;border-radius:12px;padding:12px 14px;box-shadow:0 15px 50px #0008;max-width:360px;font-size:13px;line-height:1.45;transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s}.toast.show{transform:none;opacity:1}.toast.good{border-color:#2a6c52}.toast.bad{border-color:#7c3040;color:#ffd2da}
+@media(max-width:900px){.work-body{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid #20283a}.conversation{max-height:240px}.stage{min-height:510px}.frame-shell{height:480px}.projects{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.topbar{padding:0 12px}.badge{display:none}.top-actions .btn.ghost{display:none}.hero{padding:52px 14px 26px}.hero h1{font-size:44px}.hero p{font-size:15px}.composer{border-radius:16px}.composer-foot{align-items:flex-end}.hint{display:none}.build-btn{padding:11px 14px}.work{padding:10px 8px 40px}.workbar{align-items:flex-start}.work-actions .btn span{display:none}.project-name input{width:140px}.preview-toolbar{flex-wrap:wrap;height:auto}.stage{padding:8px;min-height:490px}.frame-shell{height:470px}.projects-wrap{padding:18px 14px 70px}.projects{grid-template-columns:1fr}.suffix{padding:0 8px}.domain-row input{width:100%}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M13.5 2 5 13h6l-1 9 9-12h-6l.5-8Z" fill="white"/></svg></div>WebForge AI</div>
+  <div class="top-actions"><div class="badge"><i class="pulse"></i>AI builder online</div><button class="btn ghost" onclick="scrollToProjects()">My sites</button><button class="btn" onclick="newProject()">+ New website</button></div>
+</div>
+
+<main id="landing">
+<section class="hero">
+  <div class="eyebrow">✦ Build, edit & publish from one prompt</div>
+  <h1><span class="grad">Describe it.</span><br>We'll build the website.</h1>
+  <p>Turn an idea into a complete responsive website. No coding required — describe what you want, preview it instantly, then publish it to a real public link.</p>
+  <div class="composer">
+    <textarea id="prompt" class="prompt" placeholder="Build me a modern restaurant website for an Italian place called Luna. Include a full-screen hero, menu, gallery, reviews and reservation section..."></textarea>
+    <div class="composer-foot">
+      <div class="hint">✦ Powered by GPT-5.6 Luna via Puter</div>
+      <button id="buildBtn" class="build-btn" onclick="buildWebsite()">Build website <span>→</span></button>
+    </div>
+  </div>
+  <div class="chips">
+    <button class="chip" onclick="useExample(this)">Portfolio for a game developer</button>
+    <button class="chip" onclick="useExample(this)">Luxury coffee shop</button>
+    <button class="chip" onclick="useExample(this)">Fitness coaching landing page</button>
+    <button class="chip" onclick="useExample(this)">Modern SaaS dashboard</button>
+  </div>
+  <div class="trust"><span>✓ No API key needed</span><span>✓ Live preview</span><span>✓ Download your code</span><span>✓ Publish to the web</span></div>
+</section>
+
+<section id="work" class="work hidden">
+  <div class="workspace">
+    <div class="workbar">
+      <div class="project-name"><span style="color:#7c5cff">◆</span><input id="projectName" value="Untitled website" oninput="renameProject()"><div class="status"><i class="status-dot"></i><span id="saveStatus">Saved</span></div></div>
+      <div class="work-actions">
+        <button class="btn" onclick="downloadHtml()">↓ <span>Download</span></button>
+        <button class="btn" onclick="openPreview()">↗ <span>Open preview</span></button>
+        <button class="btn good" onclick="openPublish()">● <span>Publish</span></button>
+      </div>
+    </div>
+    <div class="work-body">
+      <aside class="sidebar">
+        <div class="side-tabs"><button class="side-tab active">AI edits</button><button class="side-tab" onclick="showCodeInfo()">Code</button></div>
+        <div id="conversation" class="conversation"></div>
+        <div class="change-box">
+          <textarea id="changeRequest" placeholder="Ask for a change... e.g. Make the hero darker and add a pricing section"></textarea>
+          <div class="change-row"><button id="changeBtn" class="btn primary" onclick="applyChange()">Apply change →</button></div>
+        </div>
+      </aside>
+      <div class="preview-pane">
+        <div class="preview-toolbar">
+          <div class="devices"><button class="device active" data-device="desktop" onclick="setDevice(this)">Desktop</button><button class="device" data-device="tablet" onclick="setDevice(this)">Tablet</button><button class="device" data-device="mobile" onclick="setDevice(this)">Mobile</button></div>
+          <div class="preview-label">Live preview • sandboxed</div>
+        </div>
+        <div class="stage"><div id="frameShell" class="frame-shell"><iframe id="preview" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projectsSection" class="projects-wrap">
+  <div class="section-head"><div><h2>Your websites</h2><p>Saved locally on this device.</p></div><button class="btn" onclick="newProject()">New website</button></div>
+  <div id="projects" class="projects"></div>
+</section>
+</main>
+
+<div id="publishOverlay" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-head"><h3>Publish your website</h3><button class="close" onclick="closePublish()">✕</button></div>
+    <div class="field-label">Choose your free web address</div>
+    <div class="domain-row"><input id="subdomain" autocomplete="off" placeholder="my-awesome-site" oninput="domainTyping()"><div class="suffix">.puter.site</div></div>
+    <div id="urlPreview" class="url-preview">https://my-awesome-site.puter.site</div>
+    <div class="notice"><b>Free hosting:</b> publishing here gives you a public <b>.puter.site</b> URL. A true custom <b>.com</b> requires registering/owning that domain with a domain registrar.</div>
+    <div id="publishedBox" class="published hidden"></div>
+    <div class="modal-actions"><button class="btn" onclick="closePublish()">Cancel</button><button id="publishBtn" class="btn primary" onclick="publishSite()">Publish now</button></div>
+  </div>
+</div>
+
+<div id="loading" class="loading hidden"><div class="loading-card"><div class="spinner"></div><h3 id="loadingTitle">Building your website…</h3><p id="loadingText">AI is designing the layout, writing the content and wiring the interactions.</p><div class="progress"><i></i></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const MODEL = "gpt-5.6-luna";
+const STORAGE_KEY = "webforge.projects.v1";
+let current = null;
+let html = "";
+let projects = loadProjects();
+
+function loadProjects(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch{return[]}}
+function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(projects));document.getElementById("saveStatus").textContent="Saved"}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function now(){return new Date().toISOString()}
+function safeName(prompt){let s=prompt.replace(/build|make|create|website|site|me|a|an|for/gi," ").replace(/[^a-z0-9 ]/gi," ").replace(/\s+/g," ").trim().split(" ").slice(0,5).join(" ");return s?s.replace(/\b\w/g,c=>c.toUpperCase()):"New Website"}
+function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function stripCode(s){s=String(s||"").trim();s=s.replace(/^\`\`\`(?:html)?\s*/i,"").replace(/\s*\`\`\`$/,"");const i=s.toLowerCase().indexOf("<!doctype");const j=s.toLowerCase().indexOf("<html");const start=i>=0?i:j;if(start>0)s=s.slice(start);return s.trim()}
+function getAIText(r){if(typeof r==="string")return r;if(r&&r.message&&typeof r.message.content==="string")return r.message.content;if(r&&typeof r.text==="string")return r.text;if(r&&r.content){if(typeof r.content==="string")return r.content;if(Array.isArray(r.content))return r.content.map(x=>x.text||"").join("")}return String(r||"")}
+function toast(msg,type=""){const t=document.getElementById("toast");t.textContent=msg;t.className="toast show "+type;clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.className="toast",3600)}
+function setLoading(on,title,text){document.getElementById("loading").classList.toggle("hidden",!on);if(title)document.getElementById("loadingTitle").textContent=title;if(text)document.getElementById("loadingText").textContent=text}
+function useExample(btn){document.getElementById("prompt").value=btn.textContent;document.getElementById("prompt").focus()}
+function scrollToProjects(){document.getElementById("projectsSection").scrollIntoView({behavior:"smooth"})}
+function newProject(){current=null;html="";document.getElementById("prompt").value="";document.getElementById("work").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});setTimeout(()=>document.getElementById("prompt").focus(),400)}
+function aiSystem(){
+ return `You are WebForge AI, an expert senior web designer and frontend engineer. Build ONE finished production-quality standalone HTML document from the user's request.
+RULES:
+- Return ONLY raw HTML, starting with <!doctype html>. Never use markdown fences or explanations.
+- Everything must work by opening this one HTML file. Put CSS inside <style> and JS inside <script>.
+- Make it visually polished, distinctive, modern and fully responsive on mobile/tablet/desktop.
+- Use strong hierarchy, excellent spacing, accessible contrast, tasteful animation and interactive states.
+- Buttons, navigation, tabs, forms, menus and interactive elements must actually behave sensibly.
+- Do not leave TODOs, broken links, fake loading forever, empty sections or developer notes.
+- Prefer CSS-drawn visuals, gradients and inline SVG where useful so the site remains self-contained.
+- Use realistic copy/content appropriate to the request instead of lorem ipsum.
+- If the user requests multiple pages, simulate working navigation as sections/views inside the single HTML file.
+- Never include scripts that attempt to escape the preview, access parent frames, steal data, mine crypto, download executables or perform malicious behavior.
+- The final output must be complete enough to publish immediately.`;
+}
+async function callAI(userText){
+ if(!window.puter||!puter.ai)throw new Error("The AI service did not load. Check your internet connection and try again.");
+ const response=await puter.ai.chat([{role:"system",content:aiSystem()},{role:"user",content:userText}],{model:MODEL,normalize:true,max_tokens:14000,temperature:.65});
+ const out=stripCode(getAIText(response));
+ if(!out.toLowerCase().includes("<html"))throw new Error("AI returned an incomplete page. Please try again.");
+ return out;
+}
+async function buildWebsite(){
+ const prompt=document.getElementById("prompt").value.trim();
+ if(prompt.length<8)return toast("Describe the website you want first.","bad");
+ document.getElementById("buildBtn").disabled=true;
+ setLoading(true,"Building your website…","AI is designing the layout, writing the content and wiring the interactions.");
+ try{
+   html=await callAI("Create this website:\n\n"+prompt);
+   current={id:uid(),name:safeName(prompt),prompt,html,createdAt:now(),updatedAt:now(),publishedUrl:""};
+   projects.unshift(current);persist();openEditor(current);renderProjects();toast("Website built successfully.","good");
+ }catch(e){console.error(e);toast(errorText(e),"bad")}
+ finally{setLoading(false);document.getElementById("buildBtn").disabled=false}
+}
+function errorText(e){let m=e&&e.message?e.message:String(e||"Something went wrong");if(/auth|sign|login/i.test(m))return "Please complete the Puter sign-in window, then try again.";if(/quota|credit|usage|limit/i.test(m))return "Your AI allowance is currently unavailable or used up. Try again later or check your Puter account.";return m.slice(0,220)}
+function openEditor(p){
+ current=p;html=p.html||"";document.getElementById("projectName").value=p.name||"Untitled website";document.getElementById("work").classList.remove("hidden");renderPreview();renderConversation();setTimeout(()=>document.getElementById("work").scrollIntoView({behavior:"smooth",block:"start"}),100);
+}
+function renderPreview(){const f=document.getElementById("preview");f.srcdoc=html}
+function renderConversation(){
+ const box=document.getElementById("conversation");
+ let items=[`<div class="msg user"><strong>Original prompt</strong><br>${esc(current.prompt)}</div>`,`<div class="msg"><strong>WebForge</strong><br>Website generated. You can preview it on the right, or ask me to change anything below.</div>`];
+ (current.edits||[]).forEach(x=>{items.push(`<div class="msg user"><strong>Change request</strong><br>${esc(x.request)}</div>`);items.push(`<div class="msg"><strong>WebForge</strong><br>Applied that update to the website.</div>`)});
+ box.innerHTML=items.join("");box.scrollTop=box.scrollHeight;
+}
+async function applyChange(){
+ if(!current)return;
+ const req=document.getElementById("changeRequest").value.trim();if(!req)return toast("Tell me what you want changed.","bad");
+ const btn=document.getElementById("changeBtn");btn.disabled=true;setLoading(true,"Updating your website…","Applying your change while keeping the rest of the design intact.");
+ try{
+   const prompt=`Here is the CURRENT complete website HTML:\n\n${html}\n\nCHANGE REQUEST:\n${req}\n\nReturn the entire updated standalone HTML document. Preserve everything that is not part of the requested change.`;
+   html=await callAI(prompt);current.html=html;current.updatedAt=now();current.edits=current.edits||[];current.edits.push({request:req,at:now()});syncCurrent();renderPreview();renderConversation();document.getElementById("changeRequest").value="";toast("Change applied.","good");
+ }catch(e){console.error(e);toast(errorText(e),"bad")}finally{setLoading(false);btn.disabled=false}
+}
+function syncCurrent(){const i=projects.findIndex(p=>p.id===current.id);if(i>=0)projects[i]=current;persist();renderProjects()}
+function renameProject(){if(!current)return;current.name=document.getElementById("projectName").value.trim()||"Untitled website";current.updatedAt=now();document.getElementById("saveStatus").textContent="Saving…";clearTimeout(window.__save);window.__save=setTimeout(syncCurrent,350)}
+function setDevice(btn){document.querySelectorAll(".device").forEach(x=>x.classList.remove("active"));btn.classList.add("active");const s=document.getElementById("frameShell");s.className="frame-shell "+(btn.dataset.device==="desktop"?"":btn.dataset.device)}
+function openPreview(){if(!html)return;const u=URL.createObjectURL(new Blob([html],{type:"text/html"}));window.open(u,"_blank");setTimeout(()=>URL.revokeObjectURL(u),60000)}
+function downloadHtml(){if(!html)return;const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([html],{type:"text/html"}));a.download=(current?.name||"website").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".html";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast("HTML downloaded.","good")}
+function showCodeInfo(){toast("Use Download to get the complete editable HTML source.")}
+function openPublish(){if(!current||!html)return;document.getElementById("publishOverlay").classList.remove("hidden");document.getElementById("publishedBox").classList.add("hidden");const base=(current.name||"my-site").toLowerCase().replace(/[^a-z0-9-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,32)||"my-site";document.getElementById("subdomain").value=base+"-"+Math.random().toString(36).slice(2,6);domainTyping()}
+function closePublish(){document.getElementById("publishOverlay").classList.add("hidden")}
+function domainTyping(){let el=document.getElementById("subdomain");let v=el.value.toLowerCase().replace(/[^a-z0-9-]/g,"").replace(/^-+/,"").slice(0,50);el.value=v;document.getElementById("urlPreview").textContent="https://"+(v||"my-awesome-site")+".puter.site"}
+async function publishSite(){
+ const slug=document.getElementById("subdomain").value.trim();if(slug.length<3)return toast("Choose a subdomain with at least 3 characters.","bad");
+ const btn=document.getElementById("publishBtn");btn.disabled=true;btn.textContent="Publishing…";
+ try{
+   if(!window.puter||!puter.fs||!puter.hosting)throw new Error("Publishing service did not load.");
+   const dir="webforge-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);
+   await puter.fs.mkdir(dir);
+   await puter.fs.write(dir+"/index.html",html);
+   const site=await puter.hosting.create(slug,dir);
+   const url="https://"+site.subdomain+".puter.site";
+   current.publishedUrl=url;current.updatedAt=now();syncCurrent();
+   const b=document.getElementById("publishedBox");b.innerHTML=`Published! <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a>`;b.classList.remove("hidden");
+   toast("Your website is live!","good");
+ }catch(e){console.error(e);let m=errorText(e);if(/conflict|already|taken|exist/i.test(String(e?.message||e)))m="That .puter.site name is already taken. Choose another name — nothing was overwritten.";toast(m,"bad")}
+ finally{btn.disabled=false;btn.textContent="Publish now"}
+}
+function renderProjects(){
+ const grid=document.getElementById("projects");if(!projects.length){grid.innerHTML='<div class="empty">Your generated websites will appear here.</div>';return}
+ grid.innerHTML=projects.slice(0,12).map(p=>`<div class="project"><div class="thumb">◆</div><div class="project-body"><div class="project-title">${esc(p.name)}</div><div class="project-desc">${esc(p.prompt)}</div><div class="project-row"><span class="small">${p.publishedUrl?"Published":"Saved locally"}</span><button class="linkbtn" onclick="loadProject('${p.id}')">Open →</button></div></div></div>`).join("");
+}
+function loadProject(id){const p=projects.find(x=>x.id===id);if(p)openEditor(p)}
+document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){if(!document.getElementById("work").classList.contains("hidden")&&document.activeElement===document.getElementById("changeRequest"))applyChange();else buildWebsite()}if(e.key==="Escape")closePublish()});
+document.getElementById("publishOverlay").addEventListener("click",e=>{if(e.target.id==="publishOverlay")closePublish()});
+renderProjects();
+</script>
+</body>
+</html>
