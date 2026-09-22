@@ -36,7 +36,7 @@
   <div class="composer">
     <textarea id="prompt" class="prompt" placeholder="Build me a modern restaurant website for an Italian place called Luna. Include a full-screen hero, menu, gallery, reviews and reservation section..."></textarea>
     <div class="composer-foot">
-      <div class="hint">✦ Powered by GPT-5.6 Luna via Puter</div>
+      <div class="hint">✦ Powered by GPT-6 Astra Pro via Puter</div>
       <button id="buildBtn" class="build-btn" onclick="buildWebsite()">Build website <span>→</span></button>
     </div>
   </div>
@@ -101,7 +101,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const MODEL = "gpt-5.6-luna";
+const MODEL = "openai/gpt-6-astra-pro";
 const STORAGE_KEY = "webforge.projects.v1";
 let current = null;
 let html = "";
@@ -137,7 +137,18 @@ RULES:
 }
 async function callAI(userText){
  if(!window.puter||!puter.ai)throw new Error("The AI service did not load. Check your internet connection and try again.");
- const response=await puter.ai.chat([{role:"system",content:aiSystem()},{role:"user",content:userText}],{model:MODEL,normalize:true,max_tokens:14000,temperature:.65});
+ const messages=[{role:"system",content:aiSystem()},{role:"user",content:userText}];
+ let response;
+ try{
+   response=await puter.ai.chat(messages,{model:MODEL,normalize:true,max_tokens:32000,reasoning_effort:"xhigh",verbosity:"high"});
+ }catch(err){
+   const msg=String(err&&err.message?err.message:err||"");
+   if(/unsupported parameter|reasoning_effort|verbosity/i.test(msg)){
+     response=await puter.ai.chat(messages,{model:MODEL,normalize:true,max_tokens:32000});
+   }else{
+     throw err;
+   }
+ }
  const out=stripCode(getAIText(response));
  if(!out.toLowerCase().includes("<html"))throw new Error("AI returned an incomplete page. Please try again.");
  return out;
