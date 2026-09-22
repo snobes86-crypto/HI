@@ -36,7 +36,7 @@
   <div class="composer">
     <textarea id="prompt" class="prompt" placeholder="Build me a modern restaurant website for an Italian place called Luna. Include a full-screen hero, menu, gallery, reviews and reservation section..."></textarea>
     <div class="composer-foot">
-      <div class="hint">✦ Powered by GPT-6 Astra Pro via Puter</div>
+      <div class="hint">✦ GPT-6 Astra Pro + unlimited local AI fallback</div>
       <button id="buildBtn" class="build-btn" onclick="buildWebsite()">Build website <span>→</span></button>
     </div>
   </div>
@@ -46,7 +46,7 @@
     <button class="chip" onclick="useExample(this)">Fitness coaching landing page</button>
     <button class="chip" onclick="useExample(this)">Modern SaaS dashboard</button>
   </div>
-  <div class="trust"><span>✓ No API key needed</span><span>✓ Live preview</span><span>✓ Download your code</span><span>✓ Publish to the web</span></div>
+  <div class="trust"><span>✓ No API key needed</span><span>✓ No monthly quota in Local AI mode</span><span>✓ Live preview</span><span>✓ Download your code</span><span>✓ Publish to the web</span></div>
 </section>
 
 <section id="work" class="work hidden">
@@ -102,6 +102,13 @@
 
 <script>
 const MODEL = "openai/gpt-6-astra-pro";
+const LOCAL_MODELS = [
+  "Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",
+  "Qwen2.5-Coder-0.5B-Instruct-q4f16_1-MLC"
+];
+let localEngine = null;
+let localModel = "";
+let localLoading = null;
 const STORAGE_KEY = "webforge.projects.v1";
 let current = null;
 let html = "";
@@ -135,23 +142,84 @@ RULES:
 - Never include scripts that attempt to escape the preview, access parent frames, steal data, mine crypto, download executables or perform malicious behavior.
 - The final output must be complete enough to publish immediately.`;
 }
+async function ensureLocalAI(){
+ if(localEngine)return localEngine;
+ if(localLoading)return localLoading;
+ localLoading=(async()=>{
+   if(!("gpu" in navigator))throw new Error("Local AI needs WebGPU. Update Safari/Chrome or use a WebGPU-capable device.");
+   const webllm=await import("https://esm.run/@mlc-ai/web-llm");
+   let lastErr=null;
+   for(const modelId of LOCAL_MODELS){
+     try{
+       document.getElementById("loadingTitle").textContent="Loading WebForge Local AI…";
+       document.getElementById("loadingText").textContent="First use downloads the built-in coding model. Future runs use the browser cache.";
+       const engine=await webllm.CreateMLCEngine(modelId,{
+         initProgressCallback:(p)=>{
+           if(p&&p.text)document.getElementById("loadingText").textContent=p.text;
+         },
+         logLevel:"WARN"
+       });
+       localEngine=engine;
+       localModel=modelId;
+       toast("WebForge Local AI is ready — no monthly prompt quota.","good");
+       return engine;
+     }catch(e){
+       lastErr=e;
+       console.warn("Local model failed:",modelId,e);
+     }
+   }
+   throw lastErr||new Error("Could not load WebForge Local AI on this device.");
+ })();
+ try{return await localLoading}
+ finally{localLoading=null}
+}
+
+async function callLocalAI(userText){
+ const engine=await ensureLocalAI();
+ document.getElementById("loadingTitle").textContent="WebForge Local AI is building…";
+ document.getElementById("loadingText").textContent="Running "+localModel+" directly on this device — no cloud allowance required.";
+ const response=await engine.chat.completions.create({
+   messages:[
+     {role:"system",content:aiSystem()+" Keep the complete page compact enough to fit comfortably in a 4096-token context. Return only HTML."},
+     {role:"user",content:userText}
+   ],
+   temperature:0.25,
+   max_tokens:2800
+ });
+ const out=stripCode(response?.choices?.[0]?.message?.content||"");
+ if(!out.toLowerCase().includes("<html"))throw new Error("Local AI returned an incomplete page. Try a slightly simpler request.");
+ return out;
+}
+
 async function callAI(userText){
- if(!window.puter||!puter.ai)throw new Error("The AI service did not load. Check your internet connection and try again.");
  const messages=[{role:"system",content:aiSystem()},{role:"user",content:userText}];
- let response;
- try{
-   response=await puter.ai.chat(messages,{model:MODEL,normalize:true,max_tokens:32000,reasoning_effort:"xhigh",verbosity:"high"});
- }catch(err){
-   const msg=String(err&&err.message?err.message:err||"");
-   if(/unsupported parameter|reasoning_effort|verbosity/i.test(msg)){
-     response=await puter.ai.chat(messages,{model:MODEL,normalize:true,max_tokens:32000});
-   }else{
-     throw err;
+ if(window.puter&&puter.ai){
+   try{
+     let response;
+     try{
+       response=await puter.ai.chat(messages,{model:MODEL,normalize:true,max_tokens:32000,reasoning_effort:"xhigh",verbosity:"high"});
+     }catch(err){
+       const msg=String(err&&err.message?err.message:err||"");
+       if(/unsupported parameter|reasoning_effort|verbosity/i.test(msg)){
+         response=await puter.ai.chat(messages,{model:MODEL,normalize:true,max_tokens:32000});
+       }else{
+         throw err;
+       }
+     }
+     const out=stripCode(getAIText(response));
+     if(!out.toLowerCase().includes("<html"))throw new Error("AI returned an incomplete page.");
+     return out;
+   }catch(err){
+     const msg=String(err&&err.message?err.message:err||"");
+     if(/allowance|quota|credit|usage|limit|insufficient|402|subscription|fund/i.test(msg)){
+       toast("Cloud allowance reached — switching to WebForge Local AI.","good");
+       return await callLocalAI(userText);
+     }
+     console.warn("Cloud AI failed; trying Local AI:",err);
+     try{return await callLocalAI(userText)}catch(localErr){throw err}
    }
  }
- const out=stripCode(getAIText(response));
- if(!out.toLowerCase().includes("<html"))throw new Error("AI returned an incomplete page. Please try again.");
- return out;
+ return await callLocalAI(userText);
 }
 async function buildWebsite(){
  const prompt=document.getElementById("prompt").value.trim();
@@ -165,7 +233,7 @@ async function buildWebsite(){
  }catch(e){console.error(e);toast(errorText(e),"bad")}
  finally{setLoading(false);document.getElementById("buildBtn").disabled=false}
 }
-function errorText(e){let m=e&&e.message?e.message:String(e||"Something went wrong");if(/auth|sign|login/i.test(m))return "Please complete the Puter sign-in window, then try again.";if(/quota|credit|usage|limit/i.test(m))return "Your AI allowance is currently unavailable or used up. Try again later or check your Puter account.";return m.slice(0,220)}
+function errorText(e){let m=e&&e.message?e.message:String(e||"Something went wrong");if(/auth|sign|login/i.test(m))return "Please complete the Puter sign-in window, then try again.";if(/quota|credit|usage|limit|allowance|insufficient/i.test(m))return "Cloud AI is out of allowance and Local AI could not start on this device. Check WebGPU support, then try again.";return m.slice(0,220)}
 function openEditor(p){
  current=p;html=p.html||"";document.getElementById("projectName").value=p.name||"Untitled website";document.getElementById("work").classList.remove("hidden");renderPreview();renderConversation();setTimeout(()=>document.getElementById("work").scrollIntoView({behavior:"smooth",block:"start"}),100);
 }
