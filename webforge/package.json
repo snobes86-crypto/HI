@@ -1,0 +1,8 @@
+{
+  "name": "webforge-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prompt-to-website AI builder with instant preview and publishing",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
