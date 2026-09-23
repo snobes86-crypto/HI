@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#12162b" />
+  <meta name="description" content="Save reusable Scratch code stacks from .sb3 projects and add them to other Scratch projects later." />
+  <title>Scratch Code Vault</title>
+  <style>
+:root {
+  --bg: #090c18;
+  --bg2: #10152a;
+  --panel: rgba(19, 24, 45, .82);
+  --panel-solid: #141a31;
+  --panel-2: #171e38;
+  --text: #f8f9ff;
+  --muted: #aeb5d0;
+  --border: rgba(255,255,255,.09);
+  --border-strong: rgba(255,255,255,.14);
+  --accent: #7a68ff;
+  --accent-2: #9b8cff;
+  --blue: #4c97ff;
+  --green: #59c059;
+  --orange: #ffab19;
+  --red: #ff6680;
+  --shadow: 0 24px 80px rgba(0,0,0,.34);
+  --soft-shadow: 0 12px 35px rgba(0,0,0,.22);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  background: linear-gradient(180deg,#090c18 0%,#0b1020 46%,#090c18 100%);
+  min-height: 100vh;
+  overflow-x:hidden;
+}
+body::before {
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.16;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:38px 38px; mask-image:linear-gradient(to bottom,black,transparent 75%);
+}
+.ambient { position:fixed; width:520px; height:520px; border-radius:50%; filter:blur(90px); pointer-events:none; opacity:.18; }
+.ambient-a { background:#7059ff; top:-250px; left:-120px; }
+.ambient-b { background:#2f91ff; top:20px; right:-260px; }
+a { color:inherit; text-decoration:none; }
+button,input,select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor:not-allowed; opacity:.48; transform:none!important; filter:none!important; }
+.app-shell { position:relative; z-index:1; width:min(1220px,calc(100% - 30px)); margin:0 auto; padding:22px 0 32px; }
+.topbar { display:flex; justify-content:space-between; align-items:center; gap:22px; margin-bottom:18px; }
+.brand-wrap { display:flex; align-items:center; gap:13px; min-width:max-content; }
+.logo { width:52px; height:52px; border-radius:17px; position:relative; overflow:hidden; background:linear-gradient(145deg,#6753f5,#8b77ff); box-shadow:0 12px 38px rgba(110,91,255,.28), inset 0 0 0 1px rgba(255,255,255,.16); }
+.logo-block { position:absolute; height:9px; border-radius:4px; left:10px; box-shadow:0 2px 5px rgba(0,0,0,.18); }
+.logo-block::after { content:""; position:absolute; width:8px; height:3px; border-radius:2px; right:5px; top:3px; background:rgba(255,255,255,.45); }
+.logo-block.one { top:11px; width:31px; background:#ffbf3f; }
+.logo-block.two { top:22px; left:14px; width:27px; background:#55a5ff; }
+.logo-block.three { top:33px; left:18px; width:23px; background:#ff7290; }
+h1,h2,h3,p { margin:0; }
+h1 { font-size:1.08rem; letter-spacing:-.02em; }
+.brand-wrap p { color:var(--muted); font-size:.82rem; margin-top:3px; }
+.top-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.panel { border:1px solid var(--border); background:var(--panel); backdrop-filter:blur(18px); border-radius:26px; box-shadow:var(--shadow); }
+.hero { min-height:490px; padding:42px; display:grid; grid-template-columns:1.07fr .93fr; gap:46px; align-items:center; overflow:hidden; position:relative; }
+.hero::after { content:""; position:absolute; width:420px; height:420px; border-radius:50%; right:-140px; bottom:-250px; background:rgba(76,151,255,.11); filter:blur(20px); }
+.hero-copy-wrap { position:relative; z-index:2; }
+.eyebrow { display:inline-block; color:#c9c4ff; text-transform:uppercase; letter-spacing:.13em; font-weight:850; font-size:.69rem; margin-bottom:10px; }
+.hero h2 { font-size:clamp(2.45rem,4.55vw,4.55rem); line-height:.96; letter-spacing:-.06em; max-width:760px; }
+.hero h2 span { color:#9a8dff; }
+.hero-copy { color:var(--muted); margin-top:20px; line-height:1.7; max-width:690px; font-size:1rem; }
+.hero-copy b { color:#d9ddf0; }
+.hero-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:28px; }
+button,.file-label,.link-btn { border:0; border-radius:14px; padding:12px 16px; color:var(--text); transition:.18s ease; font-weight:800; text-align:center; }
+button:hover,.file-label:hover,.link-btn:hover { transform:translateY(-1px); filter:brightness(1.06); }
+.primary { background:linear-gradient(135deg,var(--accent),#8c7cff); box-shadow:0 12px 32px rgba(109,93,252,.25); }
+.secondary { background:linear-gradient(135deg,#2f75e9,var(--blue)); box-shadow:0 12px 32px rgba(76,151,255,.2); }
+.ghost,.file-label,.link-btn.ghost { background:rgba(255,255,255,.055); border:1px solid var(--border); }
+.scratch-link { border-color:rgba(255,171,25,.23)!important; background:rgba(255,171,25,.08)!important; }
+.danger { background:rgba(255,102,128,.12); color:#ff93a6; border:1px solid rgba(255,102,128,.22); }
+.big { min-height:76px; font-size:.98rem; display:flex; align-items:center; justify-content:flex-start; gap:11px; text-align:left; padding:14px 16px; }
+.big small { display:block; font-size:.72rem; font-weight:650; color:rgba(255,255,255,.72); margin-top:3px; }
+.button-icon { flex:0 0 auto; width:38px; height:38px; border-radius:12px; display:grid; place-items:center; font-size:1.45rem; background:rgba(255,255,255,.13); }
+.trust-row { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:18px; color:#abb2cb; font-size:.76rem; font-weight:720; }
+.hero-visual { min-height:360px; position:relative; display:grid; place-items:center; z-index:2; }
+.visual-window { width:min(100%,500px); aspect-ratio:1.25; border-radius:22px; background:#f7f8fc; border:1px solid rgba(255,255,255,.18); overflow:hidden; box-shadow:0 35px 75px rgba(0,0,0,.38), 0 0 0 1px rgba(0,0,0,.22); transform:rotate(1.2deg); }
+.visual-toolbar { height:42px; background:#edf0f6; border-bottom:1px solid #d7dce8; display:flex; align-items:center; gap:7px; padding:0 13px; color:#737b90; font-size:.72rem; font-weight:750; }
+.visual-toolbar i { display:block; width:8px; height:8px; border-radius:50%; background:#c8ceda; }.visual-toolbar i:first-child{background:#ff7188}.visual-toolbar i:nth-child(2){background:#ffbf3f}.visual-toolbar i:nth-child(3){background:#62c86a}.visual-toolbar span{margin-left:auto;margin-right:auto;transform:translateX(-18px)}
+.visual-content { height:calc(100% - 42px); display:grid; grid-template-columns:64px 1fr; background:#fff; }
+.fake-sidebar { background:#f5f6fa; border-right:1px solid #e1e4eb; display:grid; align-content:start; gap:12px; padding:18px 13px; }
+.fake-sidebar span { width:36px; height:36px; border-radius:11px; background:#d9deea; }.fake-sidebar span:nth-child(1){background:#8f72ff}.fake-sidebar span:nth-child(2){background:#5aa5ff}.fake-sidebar span:nth-child(3){background:#ffbd43}.fake-sidebar span:nth-child(4){background:#ff7190}
+.fake-code { padding:38px 26px; background-image:radial-gradient(#dce0e8 .8px,transparent .8px); background-size:17px 17px; }
+.scratch-block { width:max-content; max-width:95%; color:white; padding:8px 14px; border-radius:7px; font-size:.79rem; font-weight:800; margin-top:5px; box-shadow:inset 0 -2px 0 rgba(0,0,0,.13); }
+.scratch-block.event{background:#ffbf00}.scratch-block.motion{background:#4c97ff}.scratch-block.control{background:#ffab19}.scratch-block.sensing{background:#5cb1d6}.indent-1{margin-left:14px}.indent-2{margin-left:28px}.indent-3{margin-left:42px}
+.floating-card { position:absolute; padding:12px 14px; background:rgba(21,26,49,.95); border:1px solid rgba(255,255,255,.12); border-radius:15px; box-shadow:var(--soft-shadow); display:grid; gap:2px; min-width:145px; }
+.floating-card b { font-size:.86rem; }.floating-card span{font-size:.73rem;color:var(--muted)}
+.card-save { left:-8px; bottom:26px; transform:rotate(-4deg); }.card-copy{right:-3px;top:34px;transform:rotate(4deg)}
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+.stat-card { padding:16px 18px; display:flex; align-items:center; gap:13px; border-radius:20px; box-shadow:var(--soft-shadow); }
+.stat-icon { width:42px; height:42px; border-radius:13px; display:grid; place-items:center; font-weight:900; }.stat-icon.purple{background:rgba(122,104,255,.15);color:#b7adff}.stat-icon.blue{background:rgba(76,151,255,.14);color:#89bcff}.stat-icon.green{background:rgba(89,192,89,.14);color:#81d981}
+.stat-card div { display:grid; gap:1px; }.stat-card b{font-size:1.15rem}.stat-card span:last-child{font-size:.78rem;color:var(--muted)}
+.workspace-grid { display:grid; grid-template-columns:minmax(340px,.82fr) 1.18fr; gap:18px; margin-top:18px; }
+.library-panel,.guide-panel { padding:24px; min-height:560px; }
+.section-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:15px; margin-bottom:16px; }.section-heading h3{font-size:1.4rem;letter-spacing:-.03em}.guide-heading{align-items:center}
+.count-pill { background:rgba(255,255,255,.07); border:1px solid var(--border); padding:5px 10px; border-radius:999px; color:#dddafa; font-weight:850; font-size:.8rem; }
+.search-wrap { position:relative; }.search-wrap>span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#777f9a}.search{padding-left:38px!important}
+.search,.text-input,.select { width:100%; border:1px solid var(--border); background:#0d1328; color:var(--text); border-radius:13px; padding:13px 14px; outline:none; }
+.search:focus,.text-input:focus,.select:focus { border-color:rgba(122,104,255,.8); box-shadow:0 0 0 3px rgba(122,104,255,.14); }
+.slots-list { display:grid; gap:10px; margin-top:14px; max-height:455px; overflow:auto; padding-right:3px; scrollbar-width:thin; scrollbar-color:#343b5b transparent; }
+.slot-card { border:1px solid var(--border); background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.025)); border-radius:17px; padding:15px; display:grid; gap:12px; transition:.18s ease; }.slot-card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-1px);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.032))}
+.slot-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }.slot-name{font-weight:900;overflow-wrap:anywhere}.slot-meta{color:var(--muted);font-size:.78rem;margin-top:4px;line-height:1.45}.slot-actions{display:flex;gap:7px;flex-wrap:wrap}.slot-actions button{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.065);font-size:.77rem}.slot-actions .load-slot{background:rgba(122,104,255,.19);color:#d7d3ff}.slot-actions .delete-slot{margin-left:auto;color:#ff9bad}
+.empty-state { padding:48px 18px; text-align:center; color:var(--muted); display:grid; justify-items:center; gap:9px; }.empty-state strong{color:var(--text)}.empty-state>span{max-width:310px;line-height:1.5;font-size:.88rem}.empty-icon{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;font-size:1.7rem;background:rgba(122,104,255,.14);color:#c9c4ff;border:1px solid rgba(122,104,255,.18)}.empty-save{margin-top:6px;padding:10px 14px}
+.steps { display:grid; gap:11px; }.step{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:18px;padding:16px;display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:start}.step-number{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:950;background:rgba(76,151,255,.13);color:#96c1ff;border:1px solid rgba(76,151,255,.12)}.step p,.notice p,.mini-info p{color:var(--muted);line-height:1.55;margin-top:5px;font-size:.88rem}.step-tag{font-size:.65rem;font-weight:900;letter-spacing:.1em;padding:5px 7px;border-radius:7px;background:rgba(255,255,255,.055);color:#949bb5}.tiny-link{font-size:.77rem;color:#bdb6ff;font-weight:800;padding:7px 9px;border-radius:9px;background:rgba(122,104,255,.08);border:1px solid rgba(122,104,255,.11)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.mini-info{padding:14px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;gap:10px;border:1px solid var(--border)}.mini-info>span{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-weight:900}.mini-info strong{font-size:.86rem}.safe-info{background:rgba(89,192,89,.045)}.safe-info>span{background:rgba(89,192,89,.13);color:#86d786}.private-info{background:rgba(122,104,255,.045)}.private-info>span{background:rgba(122,104,255,.13);color:#b6adff}
+.notice { margin-top:14px; padding:15px; border-radius:17px; border:1px solid rgba(255,171,25,.18); background:rgba(255,171,25,.055); display:grid; grid-template-columns:34px 1fr; gap:11px; }.notice-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:rgba(255,171,25,.15);color:#ffc45e;font-weight:950}
+.modal-backdrop { position:fixed; inset:0; background:rgba(4,5,12,.78); backdrop-filter:blur(12px); z-index:50; display:grid; place-items:center; padding:18px; }.modal-backdrop.hidden{display:none}.modal{width:min(840px,100%);max-height:min(90vh,920px);display:flex;flex-direction:column;border-radius:24px;border:1px solid var(--border-strong);background:#11162a;box-shadow:0 30px 100px rgba(0,0,0,.58);overflow:hidden}.modal-head{padding:22px 22px 17px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid var(--border)}.modal-head h2{font-size:1.65rem;letter-spacing:-.035em}.icon-btn{width:40px;height:40px;display:grid;place-items:center;padding:0;border-radius:12px;font-size:1.5rem;background:rgba(255,255,255,.07)}.modal-body{overflow:auto;padding:22px}.modal-footer{padding:16px 22px 22px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border)}
+.drop-zone { border:2px dashed rgba(122,104,255,.42); background:rgba(122,104,255,.065); border-radius:20px; padding:38px 26px; text-align:center; display:grid; justify-items:center; gap:10px; transition:.18s ease; }.drop-zone.drag{border-color:#a99dff;background:rgba(122,104,255,.13);transform:scale(1.005)}.file-button{display:inline-flex;align-items:center;justify-content:center;background:var(--accent);border-radius:12px;padding:11px 14px;font-weight:900}.help{color:var(--muted);line-height:1.55;font-size:.92rem}.form-row{display:grid;gap:8px;margin-bottom:16px}.form-row label{font-weight:800;font-size:.9rem}.script-grid{display:grid;gap:10px;margin-top:14px}.script-card{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px;border:1px solid var(--border);border-radius:15px;background:rgba(255,255,255,.032);cursor:pointer;transition:.15s ease}.script-card:hover{border-color:rgba(255,255,255,.15)}.script-card.selected{border-color:rgba(122,104,255,.76);background:rgba(122,104,255,.1)}.script-card input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px}.script-title{font-weight:900}.script-sub{color:var(--muted);margin-top:4px;font-size:.82rem}.block-preview{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}.block-chip{padding:4px 7px;border-radius:7px;background:rgba(255,255,255,.065);color:#cfd3e8;font-size:.72rem}.inline-actions{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800;background:rgba(255,255,255,.07);color:#ced2e5}.progress{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-top:14px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--blue));transition:width .25s ease}.summary-card{border:1px solid var(--border);border-radius:17px;padding:16px;background:rgba(255,255,255,.033);display:grid;gap:8px}.summary-card strong{font-size:1.05rem}.toast-wrap{position:fixed;right:18px;bottom:18px;z-index:80;display:grid;gap:8px;max-width:min(370px,calc(100% - 36px))}.toast{background:#181e38;border:1px solid var(--border-strong);color:var(--text);padding:13px 15px;border-radius:14px;box-shadow:var(--shadow);animation:toastIn .2s ease;font-weight:700}.toast.error{border-color:rgba(255,102,128,.35)}
+footer{display:flex;justify-content:space-between;gap:16px;color:#727b98;font-size:.73rem;padding:20px 4px 0}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}}
+@media (max-width:920px){.hero{grid-template-columns:1fr;padding:32px;min-height:0}.hero-visual{min-height:320px}.workspace-grid{grid-template-columns:1fr}.library-panel{min-height:0}.slots-list{max-height:540px}}
+@media (max-width:700px){.topbar{align-items:flex-start}.top-actions{max-width:420px}.stats-grid{grid-template-columns:1fr}.hero-actions{grid-template-columns:1fr}.info-grid{grid-template-columns:1fr}.card-save{left:0}.card-copy{right:0}}
+@media (max-width:560px){.app-shell{width:min(100% - 16px,1220px);padding-top:10px}.topbar{display:grid}.top-actions{justify-content:stretch;display:grid;grid-template-columns:1fr 1fr}.top-actions .scratch-link{grid-column:1/-1}.hero{padding:23px;border-radius:22px}.hero h2{font-size:2.55rem}.hero-visual{min-height:275px}.visual-window{width:100%}.floating-card{display:none}.library-panel,.guide-panel{padding:18px;border-radius:22px}.step{grid-template-columns:40px 1fr}.step-tag{display:none}.guide-heading{align-items:flex-start}.tiny-link{display:none}.modal-backdrop{padding:8px;align-items:end}.modal{max-height:94vh;border-radius:22px 22px 0 0}.modal-footer{flex-wrap:wrap}.modal-footer button{flex:1}.trust-row{font-size:.7rem}.stat-card{border-radius:17px}footer{display:grid;text-align:center;justify-content:center}}
+.simple-flow-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:22px}.simple-step{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.78rem;font-weight:850}.simple-step b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid var(--border)}.simple-step.active{color:#fff}.simple-step.active b{background:rgba(122,104,255,.22);border-color:rgba(122,104,255,.38);color:#dcd8ff}.simple-step.done{color:#a9e7ad}.simple-step.done b{background:rgba(89,192,89,.15);border-color:rgba(89,192,89,.28)}.simple-line{width:54px;height:2px;background:rgba(255,255,255,.08)}.simple-line.done{background:rgba(89,192,89,.35)}.drop-icon{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:rgba(122,104,255,.14);font-size:1.5rem;color:#cfc9ff}.compact-summary{margin-bottom:12px}.target-grid{display:grid;gap:9px;max-height:420px;overflow:auto;padding-right:3px}.target-pick{width:100%;display:grid;grid-template-columns:42px 1fr 24px;align-items:center;gap:12px;text-align:left;padding:13px 14px;background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:15px}.target-pick:hover:not(.disabled){background:rgba(255,255,255,.06);border-color:rgba(122,104,255,.45)}.target-pick.selected{background:rgba(122,104,255,.13);border-color:rgba(122,104,255,.75);box-shadow:0 0 0 3px rgba(122,104,255,.09)}.target-pick.disabled{opacity:.43;cursor:not-allowed}.target-avatar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(76,151,255,.14);color:#91c1ff;font-weight:950}.target-copy{display:grid;gap:3px}.target-copy strong{font-size:.92rem}.target-copy small{color:var(--muted);font-size:.76rem}.target-arrow{font-size:1.5rem;color:#8f97b4}.quick-name{margin-top:14px;padding:14px;border:1px solid rgba(122,104,255,.22);background:rgba(122,104,255,.06);border-radius:16px;display:grid;gap:8px}.quick-name.hidden{display:none}.quick-name>label{font-size:.8rem;font-weight:850;color:#d8d4ff}.quick-name-row{display:grid;grid-template-columns:1fr auto;gap:9px}.quick-name-row .primary{white-space:nowrap}@media(max-width:560px){.simple-step span{display:none}.simple-line{width:36px}.quick-name-row{grid-template-columns:1fr}.target-grid{max-height:48vh}}
+
+</style>
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand-wrap" href="#" aria-label="Scratch Code Vault home">
+        <div class="logo" aria-hidden="true">
+          <span class="logo-block one"></span>
+          <span class="logo-block two"></span>
+          <span class="logo-block three"></span>
+        </div>
+        <div>
+          <h1>Scratch Code Vault</h1>
+          <p>Simple Scratch code copy & paste.</p>
+        </div>
+      </a>
+      <div class="top-actions">
+        <a class="ghost link-btn scratch-link" href="https://scratch.mit.edu/projects/editor/" target="_blank" rel="noopener noreferrer">Open Scratch</a>
+        <button class="ghost" id="backupBtn">Backup library</button>
+        <label class="ghost file-label">Restore backup<input id="restoreInput" type="file" accept="application/json,.json" hidden /></label>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero panel">
+        <div class="hero-copy-wrap">
+          <span class="eyebrow">Reusable Scratch code library</span>
+          <h2>Copy a sprite’s code. <span>Paste it into another project.</span></h2>
+          <p class="hero-copy">No screen recording. No choosing blocks one-by-one. Pick a Scratch project, tap the sprite, and all of that sprite’s code is saved to your library.</p>
+          <div class="hero-actions">
+            <button class="primary big" id="saveCodeBtn">
+              <span class="button-icon">＋</span>
+              <span><b>Save Code</b><small>Choose a project, then choose a sprite</small></span>
+            </button>
+            <button class="secondary big" id="loadCodeBtn">
+              <span class="button-icon">↗</span>
+              <span><b>Use Saved Code</b><small>Put it into a sprite in another project</small></span>
+            </button>
+          </div>
+          <div class="trust-row">
+            <span>✓ No account needed</span>
+            <span>✓ Local browser storage</span>
+            <span>✓ Original .sb3 stays unchanged</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="visual-window">
+            <div class="visual-toolbar"><i></i><i></i><i></i><span>Code Vault</span></div>
+            <div class="visual-content">
+              <div class="fake-sidebar"><span></span><span></span><span></span><span></span></div>
+              <div class="fake-code">
+                <div class="scratch-block event">when green flag clicked</div>
+                <div class="scratch-block motion indent-1">go to x: 0 y: 0</div>
+                <div class="scratch-block control indent-1">forever</div>
+                <div class="scratch-block sensing indent-2">if key space pressed?</div>
+                <div class="scratch-block motion indent-3">change y by 10</div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-card card-save"><b>Saved!</b><span>Player Movement</span></div>
+          <div class="floating-card card-copy"><b>42 blocks</b><span>ready to reuse</span></div>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Library statistics">
+        <article class="stat-card panel"><span class="stat-icon purple">▦</span><div><b id="savedSlotsStat">0</b><span>Saved slots</span></div></article>
+        <article class="stat-card panel"><span class="stat-icon blue">⌘</span><div><b id="totalBlocksStat">0</b><span>Blocks stored</span></div></article>
+        <article class="stat-card panel"><span class="stat-icon green">✓</span><div><b>Private</b><span>Stored on this device</span></div></article>
+      </section>
+
+      <section class="workspace-grid">
+        <aside class="panel library-panel">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Your library</span>
+              <h3>Saved code slots</h3>
+            </div>
+            <span class="count-pill" id="slotCount">0</span>
+          </div>
+          <div class="search-wrap">
+            <span aria-hidden="true">⌕</span>
+            <input class="search" id="slotSearch" placeholder="Search your code…" autocomplete="off" />
+          </div>
+          <div id="slotsList" class="slots-list"></div>
+          <div id="emptySlots" class="empty-state">
+            <div class="empty-icon">＋</div>
+            <strong>Your vault is empty</strong>
+            <span>Save a useful script once, then reuse it in future Scratch projects.</span>
+            <button class="primary empty-save" id="emptySaveBtn">Save my first code</button>
+          </div>
+        </aside>
+
+        <section class="panel guide-panel">
+          <div class="section-heading guide-heading">
+            <div>
+              <span class="eyebrow">Quick workflow</span>
+              <h3>The simple way</h3>
+            </div>
+            <a href="https://scratch.mit.edu/projects/editor/" class="tiny-link" target="_blank" rel="noopener noreferrer">Open editor ↗</a>
+          </div>
+          <div class="steps">
+            <article class="step">
+              <span class="step-number">1</span>
+              <div><strong>Save your Scratch project</strong><p>In Scratch choose <b>File → Save to your computer</b>. Then open that .sb3 here.</p></div>
+              <span class="step-tag">.sb3</span>
+            </article>
+            <article class="step">
+              <span class="step-number">2</span>
+              <div><strong>Tap a sprite</strong><p>That’s it. Code Vault automatically saves <b>all code</b> belonging to that sprite or Stage.</p></div>
+              <span class="step-tag">AUTO</span>
+            </article>
+            <article class="step">
+              <span class="step-number">3</span>
+              <div><strong>Use it anywhere</strong><p>Press <b>Use code</b>, choose another project and destination sprite, then download the finished .sb3.</p></div>
+              <span class="step-tag">DONE</span>
+            </article>
+          </div>
+
+          <div class="info-grid">
+            <article class="mini-info safe-info"><span>◈</span><div><strong>Safe project copying</strong><p>Existing code remains in place. Imported block IDs are remapped before insertion.</p></div></article>
+            <article class="mini-info private-info"><span>⌂</span><div><strong>Your library stays local</strong><p>Slots use IndexedDB in this browser. Use Backup Library before changing devices.</p></div></article>
+          </div>
+
+          <div class="notice">
+            <div class="notice-icon">i</div>
+            <div><strong>Why this is simpler than screen recording</strong><p>Screen recording can only see pixels. It cannot reliably copy real Scratch blocks. Reading the .sb3 lets Code Vault move the actual code safely and automatically.</p></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer>
+      <span>Scratch Code Vault</span>
+      <span>Not affiliated with Scratch or the Scratch Foundation.</span>
+    </footer>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modalBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow" id="modalEyebrow">Scratch Code Vault</span>
+          <h2 id="modalTitle">Modal</h2>
+        </div>
+        <button class="icon-btn" id="closeModalBtn" aria-label="Close">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div id="modalFooter" class="modal-footer"></div>
+    </section>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>
+(() => {
+  'use strict';
+
+  const DB_NAME = 'scratch-code-vault';
+  const DB_VERSION = 1;
+  const STORE = 'slots';
+  const state = { db: null, sourceProject: null, sourceFileName: '', selectedTargetIndex: null, selectedTopIds: new Set(), activeSlot: null, targetProject: null, targetZip: null, targetFileName: '' };
+
+  const hasDOM = typeof document !== 'undefined';
+  const $ = (q, root = hasDOM ? document : null) => root?.querySelector?.(q) || null;
+  const $$ = (q, root = hasDOM ? document : null) => root?.querySelectorAll ? [...root.querySelectorAll(q)] : [];
+  const modalBackdrop = $('#modalBackdrop');
+  const modalTitle = $('#modalTitle');
+  const modalEyebrow = $('#modalEyebrow');
+  const modalBody = $('#modalBody');
+  const modalFooter = $('#modalFooter');
+
+  const escapeHtml = (s = '') => String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const uid = () => `${Date.now().toString(36)}_${crypto.getRandomValues(new Uint32Array(2)).join('_')}`;
+  const deepClone = obj => typeof structuredClone === 'function' ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
+  const formatDate = ts => new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(ts));
+
+  function toast(message, error = false) {
+    const el = document.createElement('div');
+    el.className = `toast${error ? ' error' : ''}`;
+    el.textContent = message;
+    $('#toastWrap').appendChild(el);
+    setTimeout(() => el.remove(), 3600);
+  }
+
+  function openModal(title, bodyHtml, footerHtml = '', eyebrow = 'Scratch Code Vault') {
+    modalTitle.textContent = title;
+    modalEyebrow.textContent = eyebrow;
+    modalBody.innerHTML = bodyHtml;
+    modalFooter.innerHTML = footerHtml;
+    modalBackdrop.classList.remove('hidden');
+  }
+  function closeModal() {
+    modalBackdrop.classList.add('hidden');
+    modalBody.innerHTML = '';
+    modalFooter.innerHTML = '';
+  }
+
+  function requestToPromise(req) {
+    return new Promise((resolve, reject) => {
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function initDb() {
+    state.db = await new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(STORE)) {
+          const s = db.createObjectStore(STORE, { keyPath: 'id' });
+          s.createIndex('updatedAt', 'updatedAt');
+          s.createIndex('name', 'name');
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function dbGetAll() {
+    const tx = state.db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    const rows = await requestToPromise(req);
+    return rows.sort((a,b) => b.updatedAt - a.updatedAt);
+  }
+  async function dbPut(row) {
+    const tx = state.db.transaction(STORE, 'readwrite');
+    await requestToPromise(tx.objectStore(STORE).put(row));
+  }
+  async function dbDelete(id) {
+    const tx = state.db.transaction(STORE, 'readwrite');
+    await requestToPromise(tx.objectStore(STORE).delete(id));
+  }
+  async function dbClear() {
+    const tx = state.db.transaction(STORE, 'readwrite');
+    await requestToPromise(tx.objectStore(STORE).clear());
+  }
+
+  async function renderSlots() {
+    const all = await dbGetAll();
+    const query = $('#slotSearch').value.trim().toLowerCase();
+    const rows = query ? all.filter(s => s.name.toLowerCase().includes(query) || (s.sourceSprite || '').toLowerCase().includes(query)) : all;
+    $('#slotCount').textContent = all.length;
+    const savedStat = $('#savedSlotsStat');
+    const blockStat = $('#totalBlocksStat');
+    if (savedStat) savedStat.textContent = all.length.toLocaleString();
+    if (blockStat) blockStat.textContent = all.reduce((sum, slot) => sum + (slot.blockCount || Object.keys(slot.blocks || {}).length), 0).toLocaleString();
+    $('#emptySlots').style.display = all.length ? 'none' : 'grid';
+    const list = $('#slotsList');
+    list.innerHTML = rows.map(s => `
+      <article class="slot-card" data-id="${escapeHtml(s.id)}">
+        <div class="slot-top">
+          <div>
+            <div class="slot-name">${escapeHtml(s.name)}</div>
+            <div class="slot-meta">from ${escapeHtml(s.sourceSprite || 'Unknown')} · ${s.topLevelIds.length} script${s.topLevelIds.length === 1 ? '' : 's'} · ${escapeHtml(formatDate(s.updatedAt))}</div>
+          </div>
+          <span class="badge">${s.blockCount || Object.keys(s.blocks || {}).length} blocks</span>
+        </div>
+        <div class="slot-actions">
+          <button class="load-slot">Use code</button>
+          <button class="rename-slot">Rename</button>
+          <button class="duplicate-slot">Duplicate</button>
+          <button class="delete-slot">Delete</button>
+        </div>
+      </article>`).join('');
+    if (all.length && !rows.length) list.innerHTML = `<div class="empty-state"><strong>No matches</strong><span>Try a different search.</span></div>`;
+  }
+
+  async function readSb3(file) {
+    if (!window.JSZip) throw new Error('ZIP engine did not load. Check your internet connection and reload the page.');
+    if (!file || !/\.sb3$/i.test(file.name)) throw new Error('Please choose a Scratch .sb3 project file.');
+    const zip = await JSZip.loadAsync(file);
+    const projectEntry = zip.file('project.json');
+    if (!projectEntry) throw new Error('This file does not contain project.json, so it is not a valid Scratch 3 project.');
+    const text = await projectEntry.async('string');
+    const project = JSON.parse(text);
+    if (!Array.isArray(project.targets) || !project.targets.length) throw new Error('No Scratch targets were found in this project.');
+    return { zip, project };
+  }
+
+  const opcodeNames = {
+    event_whenflagclicked:'when green flag clicked', event_whenkeypressed:'when key pressed', event_whenthisspriteclicked:'when this sprite clicked', event_whenstageclicked:'when stage clicked', event_whenbackdropswitchesto:'when backdrop switches', event_whengreaterthan:'when value >', event_whenbroadcastreceived:'when I receive',
+    control_forever:'forever', control_repeat:'repeat', control_if:'if', control_if_else:'if / else', control_wait:'wait', control_wait_until:'wait until', control_repeat_until:'repeat until', control_stop:'stop',
+    motion_movesteps:'move steps', motion_turnright:'turn right', motion_turnleft:'turn left', motion_gotoxy:'go to x y', motion_glidesecstoxy:'glide to x y', motion_changexby:'change x', motion_changeyby:'change y', motion_setx:'set x', motion_sety:'set y',
+    looks_sayforsecs:'say for seconds', looks_say:'say', looks_switchcostumeto:'switch costume', looks_nextcostume:'next costume', looks_show:'show', looks_hide:'hide',
+    sound_playuntildone:'play sound until done', sound_play:'start sound', sound_stopallsounds:'stop all sounds',
+    sensing_keypressed:'key pressed?', sensing_touchingobject:'touching?', sensing_askandwait:'ask and wait',
+    data_setvariableto:'set variable', data_changevariableby:'change variable', data_addtolist:'add to list', data_deleteoflist:'delete list item', data_replaceitemoflist:'replace list item',
+    operator_add:'add', operator_subtract:'subtract', operator_multiply:'multiply', operator_divide:'divide', operator_equals:'equals', operator_gt:'greater than', operator_lt:'less than', operator_and:'and', operator_or:'or', operator_not:'not',
+    procedures_definition:'define custom block', procedures_call:'custom block call'
+  };
+  const friendlyOpcode = op => opcodeNames[op] || String(op || 'unknown').replace(/^[^_]+_/, '').replace(/_/g, ' ');
+
+  function getTopLevelStacks(target) {
+    return Object.entries(target.blocks || {})
+      .filter(([, b]) => b && !Array.isArray(b) && b.topLevel === true && b.parent == null)
+      .sort((a,b) => ((a[1].y ?? 0) - (b[1].y ?? 0)) || ((a[1].x ?? 0) - (b[1].x ?? 0)));
+  }
+
+  function collectReachable(blocks, roots) {
+    const seen = new Set();
+    const walkRef = ref => {
+      if (typeof ref !== 'string' || seen.has(ref) || !blocks[ref] || Array.isArray(blocks[ref])) return;
+      seen.add(ref);
+      const b = blocks[ref];
+      if (b.next) walkRef(b.next);
+      for (const input of Object.values(b.inputs || {})) {
+        if (!Array.isArray(input)) continue;
+        for (let i = 1; i < input.length; i++) {
+          const v = input[i];
+          if (typeof v === 'string') walkRef(v);
+          else if (Array.isArray(v) && (v[0] === 12 || v[0] === 13) && typeof v[2] === 'string') {
+            // primitive variable/list reporter - no nested block ref
+          }
+        }
+      }
+    };
+    roots.forEach(walkRef);
+    return seen;
+  }
+
+  function topStackSummary(target, rootId) {
+    const blocks = target.blocks || {};
+    const ids = collectReachable(blocks, [rootId]);
+    const root = blocks[rootId];
+    const ops = [...ids].map(id => blocks[id]).filter(b => b && !Array.isArray(b)).map(b => friendlyOpcode(b.opcode));
+    const title = root?.opcode === 'procedures_definition' ? getProcedureDefinitionName(blocks, rootId) || 'Custom block definition' : friendlyOpcode(root?.opcode);
+    return { title, count: ids.size, ops: [...new Set(ops)].slice(0, 7) };
+  }
+
+  function getProcedureDefinitionName(blocks, definitionId) {
+    const d = blocks[definitionId];
+    if (!d) return '';
+    const customInput = d.inputs?.custom_block;
+    const protoId = Array.isArray(customInput) ? customInput[1] : null;
+    const proto = typeof protoId === 'string' ? blocks[protoId] : null;
+    return proto?.mutation?.proccode || '';
+  }
+
+  function calledProcedureCodes(blocks, ids) {
+    const set = new Set();
+    ids.forEach(id => {
+      const b = blocks[id];
+      if (b && !Array.isArray(b) && b.opcode === 'procedures_call' && b.mutation?.proccode) set.add(b.mutation.proccode);
+    });
+    return set;
+  }
+
+  function expandCustomBlockDependencies(target, chosenRootIds) {
+    const blocks = target.blocks || {};
+    const roots = new Set(chosenRootIds);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const reachable = collectReachable(blocks, [...roots]);
+      const called = calledProcedureCodes(blocks, reachable);
+      for (const [id,b] of Object.entries(blocks)) {
+        if (!b || Array.isArray(b) || b.opcode !== 'procedures_definition' || !b.topLevel) continue;
+        const name = getProcedureDefinitionName(blocks,id);
+        if (called.has(name) && !roots.has(id)) { roots.add(id); changed = true; }
+      }
+    }
+    return [...roots];
+  }
+
+  function gatherVariableMetadata(project, targetIndex, blockIds) {
+    const target = project.targets[targetIndex];
+    const stage = project.targets.find(t => t.isStage) || project.targets[0];
+    const blocks = target.blocks || {};
+    const variableIds = new Set(), listIds = new Set(), broadcastIds = new Set();
+
+    const inspectPrimitive = p => {
+      if (!Array.isArray(p)) return;
+      if (p[0] === 12 && typeof p[2] === 'string') variableIds.add(p[2]);
+      if (p[0] === 13 && typeof p[2] === 'string') listIds.add(p[2]);
+      if (p[0] === 11 && typeof p[2] === 'string') broadcastIds.add(p[2]);
+    };
+    blockIds.forEach(id => {
+      const b = blocks[id];
+      if (!b || Array.isArray(b)) return;
+      for (const val of Object.values(b.fields || {})) {
+        if (!Array.isArray(val)) continue;
+        const fieldName = val[0], refId = val[1];
+        if (typeof refId !== 'string') continue;
+        if (target.variables?.[refId] || stage.variables?.[refId]) variableIds.add(refId);
+        if (target.lists?.[refId] || stage.lists?.[refId]) listIds.add(refId);
+        if (stage.broadcasts?.[refId] || target.broadcasts?.[refId]) broadcastIds.add(refId);
+      }
+      for (const input of Object.values(b.inputs || {})) {
+        if (!Array.isArray(input)) continue;
+        input.slice(1).forEach(inspectPrimitive);
+      }
+    });
+
+    const variables = {}, lists = {}, broadcasts = {};
+    variableIds.forEach(id => {
+      const scope = target.variables?.[id] ? 'local' : 'global';
+      const value = target.variables?.[id] || stage.variables?.[id];
+      if (value) variables[id] = { scope, value: deepClone(value) };
+    });
+    listIds.forEach(id => {
+      const scope = target.lists?.[id] ? 'local' : 'global';
+      const value = target.lists?.[id] || stage.lists?.[id];
+      if (value) lists[id] = { scope, value: deepClone(value) };
+    });
+    broadcastIds.forEach(id => {
+      const value = stage.broadcasts?.[id] ?? target.broadcasts?.[id];
+      if (value != null) broadcasts[id] = value;
+    });
+    return { variables, lists, broadcasts };
+  }
+
+  function buildSnippet(project, targetIndex, chosenRootIds, name) {
+    const target = project.targets[targetIndex];
+    const roots = expandCustomBlockDependencies(target, chosenRootIds);
+    const allIds = collectReachable(target.blocks || {}, roots);
+    const blocks = {};
+    allIds.forEach(id => { blocks[id] = deepClone(target.blocks[id]); });
+
+    const comments = {};
+    for (const [cid,c] of Object.entries(target.comments || {})) {
+      if (!c.blockId || allIds.has(c.blockId)) comments[cid] = deepClone(c);
+    }
+    const metadata = gatherVariableMetadata(project, targetIndex, allIds);
+    return {
+      id: uid(), name: name.trim(), createdAt: Date.now(), updatedAt: Date.now(),
+      sourceSprite: target.name, sourceIsStage: !!target.isStage,
+      topLevelIds: roots, blocks, comments,
+      variables: metadata.variables, lists: metadata.lists, broadcasts: metadata.broadcasts,
+      extensions: deepClone(project.extensions || []), blockCount: allIds.size,
+      formatVersion: 1
+    };
+  }
+
+  function saveFlowStart() {
+    openModal('Save code', `
+      <div class="simple-flow-head">
+        <div class="simple-step active"><b>1</b><span>Choose project</span></div>
+        <div class="simple-line"></div>
+        <div class="simple-step"><b>2</b><span>Choose sprite</span></div>
+      </div>
+      <div class="drop-zone" id="sourceDrop">
+        <div class="drop-icon">⬆</div>
+        <strong>Choose your Scratch project</strong>
+        <span class="help">In Scratch press <b>File → Save to your computer</b>, then pick that .sb3 here.</span>
+        <label class="file-button">Choose Scratch project<input id="sourceFile" type="file" accept=".sb3,application/x.scratch.sb3" hidden></label>
+      </div>`, `<button class="ghost" id="cancelModal">Cancel</button>`, 'Save code · 1 of 2');
+    $('#cancelModal').onclick = closeModal;
+    setupDropZone($('#sourceDrop'), $('#sourceFile'), async file => {
+      try {
+        const { project } = await readSb3(file);
+        state.sourceProject = project;
+        state.sourceFileName = file.name;
+        state.selectedTargetIndex = null;
+        state.selectedTopIds.clear();
+        showSimpleSpritePicker();
+      } catch (e) { toast(e.message, true); }
+    });
+  }
+
+  function showSimpleSpritePicker() {
+    const p = state.sourceProject;
+    const cards = p.targets.map((t,i) => {
+      const roots = getTopLevelStacks(t).map(([id]) => id);
+      const blockCount = collectReachable(t.blocks || {}, roots).size;
+      const disabled = roots.length === 0;
+      return `<button class="target-pick${disabled ? ' disabled' : ''}" data-index="${i}" ${disabled ? 'disabled' : ''}>
+        <span class="target-avatar">${t.isStage ? '▣' : '●'}</span>
+        <span class="target-copy"><strong>${escapeHtml(t.isStage ? 'Stage' : t.name)}</strong><small>${roots.length} script${roots.length===1?'':'s'} · ${blockCount} blocks${disabled ? ' · no code to save' : ''}</small></span>
+        <span class="target-arrow">›</span>
+      </button>`;
+    }).join('');
+
+    openModal('Which sprite code do you want to save?', `
+      <div class="simple-flow-head">
+        <div class="simple-step done"><b>✓</b><span>Project chosen</span></div>
+        <div class="simple-line done"></div>
+        <div class="simple-step active"><b>2</b><span>Choose sprite</span></div>
+      </div>
+      <div class="summary-card compact-summary"><strong>${escapeHtml(state.sourceFileName)}</strong><span class="help">Tap one sprite. Code Vault automatically saves all of its code — no block picking.</span></div>
+      <div class="target-grid" id="targetGrid">${cards}</div>
+      <div class="quick-name hidden" id="quickNameWrap">
+        <label>Slot name</label>
+        <div class="quick-name-row"><input id="slotName" class="text-input" maxlength="80" placeholder="Code name"><button class="primary" id="saveWholeSprite">Save code</button></div>
+      </div>`, `<button class="ghost" id="backSourceFile">Back</button>`, 'Save code · 2 of 2');
+
+    $('#backSourceFile').onclick = saveFlowStart;
+    $$('#targetGrid .target-pick:not(.disabled)').forEach(btn => {
+      btn.onclick = () => {
+        state.selectedTargetIndex = Number(btn.dataset.index);
+        $$('#targetGrid .target-pick').forEach(x => x.classList.toggle('selected', x === btn));
+        const target = p.targets[state.selectedTargetIndex];
+        $('#quickNameWrap').classList.remove('hidden');
+        $('#slotName').value = `${target.isStage ? 'Stage' : target.name} code`;
+        $('#slotName').focus();
+      };
+    });
+
+    $('#saveWholeSprite').onclick = async () => {
+      try {
+        if (state.selectedTargetIndex == null) return;
+        const target = p.targets[state.selectedTargetIndex];
+        const roots = getTopLevelStacks(target).map(([id]) => id);
+        if (!roots.length) return toast('That sprite has no code to save.', true);
+        const name = $('#slotName').value.trim() || `${target.name} code`;
+        $('#saveWholeSprite').disabled = true;
+        $('#saveWholeSprite').textContent = 'Saving…';
+        const slot = buildSnippet(state.sourceProject, state.selectedTargetIndex, roots, name);
+        slot.wholeSprite = true;
+        await dbPut(slot);
+        await renderSlots();
+        closeModal();
+        toast(`Saved all code from ${target.isStage ? 'Stage' : target.name}.`);
+      } catch (e) {
+        toast(`Could not save code: ${e.message}`, true);
+        $('#saveWholeSprite').disabled = false;
+        $('#saveWholeSprite').textContent = 'Save code';
+      }
+    };
+  }
+
+  function setupDropZone(zone, input, onFile) {
+    input.onchange = () => input.files?.[0] && onFile(input.files[0]);
+    ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev,e=>{e.preventDefault(); zone.classList.add('drag');}));
+    ['dragleave','drop'].forEach(ev => zone.addEventListener(ev,e=>{e.preventDefault(); zone.classList.remove('drag');}));
+    zone.addEventListener('drop', e => e.dataTransfer.files?.[0] && onFile(e.dataTransfer.files[0]));
+  }
+
+  async function loadFlowStart(slotId = null) {
+    const slots = await dbGetAll();
+    if (!slots.length) { toast('Save some code first.', true); return; }
+    if (slotId) {
+      state.activeSlot = slots.find(s => s.id === slotId) || null;
+      if (state.activeSlot) return showTargetUpload();
+    }
+    openModal('Choose code to use', `<div class="script-grid">${slots.map(s=>`<label class="script-card slot-choice" data-id="${escapeHtml(s.id)}"><input type="radio" name="slotChoice" value="${escapeHtml(s.id)}"><div><div class="script-title">${escapeHtml(s.name)}</div><div class="script-sub">${s.topLevelIds.length} scripts · ${s.blockCount || Object.keys(s.blocks||{}).length} blocks · from ${escapeHtml(s.sourceSprite)}</div></div></label>`).join('')}</div>`, `<button class="ghost" id="cancelLoad">Cancel</button><button class="secondary" id="chooseSlotNext" disabled>Next</button>`, 'Use code · 1 of 3');
+    $('#cancelLoad').onclick = closeModal;
+    $$('.slot-choice input').forEach(r => r.onchange = () => { $$('.slot-choice').forEach(c => c.classList.toggle('selected', $('input',c).checked)); $('#chooseSlotNext').disabled = false; });
+    $('#chooseSlotNext').onclick = () => { const id = $('.slot-choice input:checked').value; state.activeSlot = slots.find(s => s.id === id); showTargetUpload(); };
+  }
+
+  function showTargetUpload() {
+    openModal('Choose the new Scratch project', `<div class="summary-card"><span class="badge">Selected slot</span><strong>${escapeHtml(state.activeSlot.name)}</strong><span class="help">${state.activeSlot.topLevelIds.length} scripts · ${state.activeSlot.blockCount || Object.keys(state.activeSlot.blocks||{}).length} blocks</span></div><div style="height:14px"></div><div class="drop-zone" id="targetDrop"><strong>Drop the destination Scratch project here</strong><span class="help">Save the destination project from Scratch as a .sb3 first.</span><label class="file-button">Choose destination .sb3<input id="targetFile" type="file" accept=".sb3,application/x.scratch.sb3" hidden></label></div>`, `<button class="ghost" id="backChooseSlot">Back</button>`, 'Use code · 2 of 3');
+    $('#backChooseSlot').onclick = () => loadFlowStart();
+    setupDropZone($('#targetDrop'), $('#targetFile'), async file => {
+      try {
+        const { zip, project } = await readSb3(file);
+        state.targetZip = zip; state.targetProject = project; state.targetFileName = file.name;
+        showDestinationPicker();
+      } catch(e) { toast(e.message,true); }
+    });
+  }
+
+  function showDestinationPicker() {
+    const p = state.targetProject;
+    const options = p.targets.map((t,i) => `<option value="${i}">${escapeHtml(t.isStage ? 'Stage' : t.name)}</option>`).join('');
+    openModal('Choose the sprite to receive it', `<div class="form-row"><label>Destination project</label><div class="summary-card"><strong>${escapeHtml(state.targetFileName)}</strong></div></div><div class="form-row"><label>Target sprite / Stage</label><select id="destTarget" class="select"><option value="">Select one…</option>${options}</select></div><div class="notice"><strong>Safe copy</strong><p>The original file is not changed. This creates a new .sb3 with the saved scripts added to the target.</p></div>`, `<button class="ghost" id="backTargetUpload">Back</button><button class="secondary" id="injectBtn" disabled>Add code & download</button>`, 'Use code · 3 of 3');
+    const select = $('#destTarget');
+    select.onchange = () => $('#injectBtn').disabled = !select.value;
+    $('#backTargetUpload').onclick = showTargetUpload;
+    $('#injectBtn').onclick = async () => {
+      try {
+        $('#injectBtn').disabled = true; $('#injectBtn').textContent = 'Building project…';
+        const count = injectSnippet(state.targetProject, Number(select.value), state.activeSlot);
+        state.targetZip.file('project.json', JSON.stringify(state.targetProject));
+        const blob = await state.targetZip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+        const base = state.targetFileName.replace(/\.sb3$/i,'');
+        downloadBlob(blob, `${base}-with-${sanitizeFileName(state.activeSlot.name)}.sb3`);
+        closeModal(); toast(`Added ${count} blocks to ${p.targets[Number(select.value)].name}.`);
+      } catch(e) { toast(`Could not add code: ${e.message}`,true); $('#injectBtn').disabled = false; $('#injectBtn').textContent = 'Add code & download'; }
+    };
+  }
+
+  function sanitizeFileName(s) { return String(s).replace(/[^a-z0-9-_]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,60) || 'code'; }
+  function downloadBlob(blob, name) { const a = document.createElement('a'); const url = URL.createObjectURL(blob); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000); }
+
+  function findOrCreateDataId(destTarget, stage, kind, sourceId, meta, idMap) {
+    const isVar = kind === 'variables', isList = kind === 'lists';
+    const info = meta[kind]?.[sourceId];
+    if (!info) return sourceId;
+    const [name] = info.value;
+    const scopeTarget = info.scope === 'global' ? stage : destTarget;
+    const existing = Object.entries(scopeTarget[kind] || {}).find(([,v]) => Array.isArray(v) && v[0] === name);
+    if (existing) { idMap[sourceId] = existing[0]; return existing[0]; }
+    let newId = `vault_${uid()}`;
+    while ((destTarget.variables||{})[newId] || (destTarget.lists||{})[newId] || (stage.variables||{})[newId] || (stage.lists||{})[newId]) newId = `vault_${uid()}`;
+    scopeTarget[kind] ||= {};
+    scopeTarget[kind][newId] = deepClone(info.value);
+    idMap[sourceId] = newId;
+    return newId;
+  }
+
+  function injectSnippet(project, targetIndex, slot) {
+    const destTarget = project.targets[targetIndex];
+    const stage = project.targets.find(t => t.isStage) || project.targets[0];
+    destTarget.blocks ||= {}; destTarget.comments ||= {}; destTarget.variables ||= {}; destTarget.lists ||= {};
+    stage.variables ||= {}; stage.lists ||= {}; stage.broadcasts ||= {};
+
+    const dataIdMap = {};
+    Object.keys(slot.variables || {}).forEach(id => findOrCreateDataId(destTarget, stage, 'variables', id, slot, dataIdMap));
+    Object.keys(slot.lists || {}).forEach(id => findOrCreateDataId(destTarget, stage, 'lists', id, slot, dataIdMap));
+    for (const [oldId,name] of Object.entries(slot.broadcasts || {})) {
+      const existing = Object.entries(stage.broadcasts).find(([,v]) => v === name);
+      if (existing) dataIdMap[oldId] = existing[0];
+      else { const newId = `vault_${uid()}`; stage.broadcasts[newId] = name; dataIdMap[oldId] = newId; }
+    }
+
+    const blockMap = {};
+    for (const oldId of Object.keys(slot.blocks || {})) blockMap[oldId] = `vault_${uid()}`;
+    const commentMap = {};
+    for (const oldId of Object.keys(slot.comments || {})) commentMap[oldId] = `vault_${uid()}`;
+
+    const rewritePrimitive = v => {
+      if (!Array.isArray(v)) return v;
+      const out = deepClone(v);
+      if ((out[0] === 11 || out[0] === 12 || out[0] === 13) && typeof out[2] === 'string' && dataIdMap[out[2]]) out[2] = dataIdMap[out[2]];
+      return out;
+    };
+    const rewriteInput = input => {
+      if (!Array.isArray(input)) return input;
+      return input.map((v,i) => {
+        if (i === 0) return v;
+        if (typeof v === 'string' && blockMap[v]) return blockMap[v];
+        if (Array.isArray(v)) return rewritePrimitive(v);
+        return v;
+      });
+    };
+
+    const existingTop = getTopLevelStacks(destTarget);
+    const maxY = existingTop.reduce((m,[,b]) => Math.max(m, Number(b.y)||0), 0);
+    const rootOffsets = new Map(slot.topLevelIds.map((id,i) => [id, {x: 40 + (i%3)*260, y: maxY + 180 + Math.floor(i/3)*240}]));
+
+    for (const [oldId,oldBlock] of Object.entries(slot.blocks || {})) {
+      const b = deepClone(oldBlock);
+      if (Array.isArray(b)) { destTarget.blocks[blockMap[oldId]] = b; continue; }
+      if (b.next && blockMap[b.next]) b.next = blockMap[b.next];
+      if (b.parent && blockMap[b.parent]) b.parent = blockMap[b.parent]; else if (b.parent && !blockMap[b.parent]) b.parent = null;
+      if (b.inputs) for (const k of Object.keys(b.inputs)) b.inputs[k] = rewriteInput(b.inputs[k]);
+      if (b.fields) for (const k of Object.keys(b.fields)) {
+        const f = b.fields[k];
+        if (Array.isArray(f) && typeof f[1] === 'string' && dataIdMap[f[1]]) f[1] = dataIdMap[f[1]];
+      }
+      if (b.comment && commentMap[b.comment]) b.comment = commentMap[b.comment];
+      if (rootOffsets.has(oldId)) { b.x = rootOffsets.get(oldId).x; b.y = rootOffsets.get(oldId).y; b.topLevel = true; b.parent = null; }
+      destTarget.blocks[blockMap[oldId]] = b;
+    }
+
+    for (const [oldId,oldComment] of Object.entries(slot.comments || {})) {
+      const c = deepClone(oldComment);
+      if (c.blockId && blockMap[c.blockId]) c.blockId = blockMap[c.blockId];
+      else if (c.blockId) c.blockId = null;
+      destTarget.comments[commentMap[oldId]] = c;
+    }
+
+    project.extensions ||= [];
+    for (const ext of slot.extensions || []) if (!project.extensions.includes(ext)) project.extensions.push(ext);
+    return Object.keys(slot.blocks || {}).length;
+  }
+
+  async function renameSlot(id) {
+    const slot = (await dbGetAll()).find(s=>s.id===id); if (!slot) return;
+    openModal('Rename slot', `<div class="form-row"><label>Slot name</label><input id="renameInput" class="text-input" maxlength="80" value="${escapeHtml(slot.name)}"></div>`, `<button class="ghost" id="cancelRename">Cancel</button><button class="primary" id="saveRename">Save</button>`);
+    $('#cancelRename').onclick = closeModal;
+    $('#saveRename').onclick = async () => { const n=$('#renameInput').value.trim(); if(!n) return; slot.name=n; slot.updatedAt=Date.now(); await dbPut(slot); await renderSlots(); closeModal(); toast('Slot renamed.'); };
+  }
+  async function duplicateSlot(id) {
+    const slot=(await dbGetAll()).find(s=>s.id===id); if(!slot)return; const copy=deepClone(slot); copy.id=uid(); copy.name=`${slot.name} copy`; copy.createdAt=copy.updatedAt=Date.now(); await dbPut(copy); await renderSlots(); toast('Slot duplicated.');
+  }
+  async function deleteSlotPrompt(id) {
+    const slot=(await dbGetAll()).find(s=>s.id===id); if(!slot)return;
+    openModal('Delete saved code?', `<p class="help">This will permanently delete <b>${escapeHtml(slot.name)}</b> from this browser.</p>`, `<button class="ghost" id="cancelDelete">Cancel</button><button class="danger" id="confirmDelete">Delete</button>`);
+    $('#cancelDelete').onclick=closeModal; $('#confirmDelete').onclick=async()=>{await dbDelete(id); await renderSlots(); closeModal(); toast('Slot deleted.');};
+  }
+
+  async function backupLibrary() {
+    const slots=await dbGetAll();
+    const payload={type:'scratch-code-vault-backup',version:1,exportedAt:new Date().toISOString(),slots};
+    downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),`scratch-code-vault-backup-${new Date().toISOString().slice(0,10)}.json`);
+    toast(`Backed up ${slots.length} slot${slots.length===1?'':'s'}.`);
+  }
+  async function restoreLibrary(file) {
+    try {
+      const obj=JSON.parse(await file.text());
+      if(obj.type!=='scratch-code-vault-backup'||!Array.isArray(obj.slots)) throw new Error('That is not a Scratch Code Vault backup.');
+      for(const slot of obj.slots){ if(!slot.id||!slot.name||!slot.blocks) continue; slot.updatedAt=Date.now(); await dbPut(slot); }
+      await renderSlots(); toast(`Restored ${obj.slots.length} slot${obj.slots.length===1?'':'s'}.`);
+    } catch(e){ toast(e.message,true); }
+  }
+
+  globalThis.ScratchCodeVaultCore = { injectSnippet, buildSnippet, collectReachable, expandCustomBlockDependencies };
+
+  if (!hasDOM) return;
+
+  $('#saveCodeBtn').onclick=saveFlowStart;
+  $('#emptySaveBtn').onclick=saveFlowStart;
+  $('#loadCodeBtn').onclick=()=>loadFlowStart();
+  $('#closeModalBtn').onclick=closeModal;
+  modalBackdrop.addEventListener('click',e=>{ if(e.target===modalBackdrop) closeModal(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!modalBackdrop.classList.contains('hidden')) closeModal(); });
+  $('#slotSearch').oninput=renderSlots;
+  $('#backupBtn').onclick=backupLibrary;
+  $('#restoreInput').onchange=()=>$('#restoreInput').files?.[0]&&restoreLibrary($('#restoreInput').files[0]);
+  $('#slotsList').addEventListener('click',async e=>{
+    const card=e.target.closest('.slot-card'); if(!card)return; const id=card.dataset.id;
+    if(e.target.closest('.load-slot')) loadFlowStart(id);
+    else if(e.target.closest('.rename-slot')) renameSlot(id);
+    else if(e.target.closest('.duplicate-slot')) duplicateSlot(id);
+    else if(e.target.closest('.delete-slot')) deleteSlotPrompt(id);
+  });
+
+  (async()=>{
+    try { await initDb(); await renderSlots(); }
+    catch(e){ toast(`Storage could not start: ${e.message}`,true); }
+  })();
+})();
+
+</script>
+</body>
+</html>
